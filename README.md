@@ -1,5 +1,7 @@
 # Terraform Example: AWS RDS Instance
 
+[![📦 Terraform Environment Setup](https://github.com/hmanzur/terraform-rds/actions/workflows/terraform.yml/badge.svg)](https://github.com/hmanzur/terraform-rds/actions/workflows/terraform.yml)
+
 This repository contains a Terraform configuration to provision an AWS Relational Database Service (RDS) instance.
 
 ## Purpose
