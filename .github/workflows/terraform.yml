@@ -44,8 +44,9 @@ jobs:
           aws cloudformation deploy \
             --template-file tfstate-buckets.yaml \
             --stack-name ${{ vars.AWS_BUCKET_PREFIX }}-${{ github.event.inputs.environment }} \
-            --parameter-overrides StateBucket=${{ vars.AWS_BUCKET_PREFIX }} Environment=${{ github.event.inputs.environment }} \
+            --parameter-overrides StateBucketNamePrefix=${{ vars.AWS_BUCKET_PREFIX }} Environment=${{ github.event.inputs.environment }} \
             --capabilities CAPABILITY_NAMED_IAM
+
 
   plan:
     name: 🧪 Terraform Plan
