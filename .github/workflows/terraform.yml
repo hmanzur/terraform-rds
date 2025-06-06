@@ -42,7 +42,7 @@ jobs:
         run: |
           aws cloudformation deploy \
             --template-file create-tfstate-bucket.yml \
-            --stack-name ${{ env.STACK_NAME }} \
+            --stack-name ${{ vars.AWS_BUCKET_PREFIX }}-${{ github.event.inputs.environment }} \
             --parameter-overrides StateBucket=${{ vars.AWS_BUCKET_PREFIX }} Environment=${{ github.event.inputs.environment }} \
             --capabilities CAPABILITY_NAMED_IAM
 
