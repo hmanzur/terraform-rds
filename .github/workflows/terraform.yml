@@ -11,7 +11,7 @@ on:
         options:
           - apply
           - destroy
-          
+
       environment:
         description: "🌍 Target environment"
         required: true
@@ -37,8 +37,17 @@ jobs:
       - name: 💽 Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: 🧩 Generate backend config from template
+        run: |
+          cat > backend.tfbackend <<EOF
+          bucket         = "my-tfstate-${{ github.event.inputs.environment }}"
+          key            = "${{ github.event.inputs.environment }}/terraform.tfstate"
+          region         = "us-east-1"
+          encrypt = true
+          EOF
+
       - name: 📁 Initialize Terraform
-        run: terraform init
+        run: terraform init -backend-config=backend.tfbackend
 
       - name: 📋 Terraform plan
         run: terraform plan -out=tfplan -input=false
@@ -64,8 +73,17 @@ jobs:
       - name: 💽 Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: 🧩 Generate backend config from template
+        run: |
+          cat > backend.tfbackend <<EOF
+          bucket         = "my-tfstate-${{ github.event.inputs.environment }}"
+          key            = "${{ github.event.inputs.environment }}/terraform.tfstate"
+          region         = "us-east-1"
+          encrypt = true
+          EOF
+
       - name: 📁 Initialize Terraform
-        run: terraform init
+        run: terraform init -backend-config=backend.tfbackend
 
       - name: 📦 Download tfplan artifact
         uses: actions/download-artifact@v4
@@ -74,4 +92,4 @@ jobs:
           path: .
 
       - name: 🧨 Terraform apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply tfplan

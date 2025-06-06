@@ -7,7 +7,7 @@ variable "project_name" {
 variable "environment" {
   description = "The environment for the project"
   type        = string
-  default     = "PeEx"
+  default     = "development"
 }
 
 variable "zones" {
