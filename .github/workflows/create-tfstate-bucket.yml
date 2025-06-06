@@ -1,4 +1,4 @@
-name: 📦 Terraform
+name: ☁️ Deploy Terraform State Buckets with CloudFormation
 
 on:
   workflow_dispatch:
