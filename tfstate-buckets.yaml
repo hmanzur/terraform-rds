@@ -9,16 +9,16 @@ Parameters:
     AllowedPattern: "^[a-z0-9-]+$"
     Default: dev
   
-  StateBucket:
+  StateBucketNamePrefix:
     Type: String
-    Description: Name of the S3 bucket for Terraform state
+    Description: Prefix for the S3 bucket names (e.g. "peex-habid-softserve")
 
 Resources:
 
   LogBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${StateBucket}-${Environment}"
+      BucketName: !Sub "${StateBucketNamePrefix}-logs-${Environment}"
       AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
@@ -35,7 +35,7 @@ Resources:
   StateBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${StateBucket}-${Environment}"
+      BucketName: !Sub "${StateBucketNamePrefix}-tfstate-${Environment}"
       AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
@@ -51,3 +51,12 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref LogBucket
         LogFilePrefix: !Sub "${Environment}/access-logs/"
+
+Outputs:
+  StateBucketName:
+    Description: "Terraform state bucket name"
+    Value: !Ref StateBucket
+
+  LogBucketName:
+    Description: "Logging bucket name"
+    Value: !Ref LogBucket
