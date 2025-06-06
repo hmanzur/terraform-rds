@@ -1,0 +1,56 @@
+name: 📦 PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  TERRAFORM_ENVIRONMENT: staging
+
+jobs:
+  terraform:
+    name: 🛠️ Terraform Validation & Cost Estimation
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Terraform Environment
+        uses: ./.github/actions/setup-terraform
+        with:
+          terraform_environment: ${{ env.TERRAFORM_ENVIRONMENT }}
+
+      - name: 🧹 Terraform Format Check
+        run: terraform fmt -check -diff
+
+      - name: ✅ Terraform Validate
+        run: terraform validate
+
+      - name: 📋 Terraform Plan
+        run: terraform plan -out=tfplan -input=false
+
+      - name: 💰 Infracost Breakdown
+        uses: infracost/actions@v2
+        with:
+          path: .
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Infracost PR Status Update
+        run: |
+          PR_STATUS="MERGED"
+          if [[ ${{ github.event.pull_request.merged }} = false ]]; then PR_STATUS="CLOSED"; fi
+
+          echo "Updating status of ${{ github.event.pull_request.html_url }} to $PR_STATUS"
+          curl -i \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "X-API-Key: $INFRACOST_API_KEY" \
+            --data "{ \"query\": \"mutation {updatePullRequestStatus( url: \\\"${{ github.event.pull_request.html_url }}\\\", status: $PR_STATUS )}\" }" \
+            "https://dashboard.api.infracost.io/graphql";
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}

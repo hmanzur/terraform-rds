@@ -1,0 +1,32 @@
+name: Setup Terraform Environment
+description: Set up Terraform, configure AWS, and initialize backend
+inputs:
+  terraform_environment:
+    description: The Terraform environment (e.g. staging, production)
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: 💽 Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: 🔐 Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: 🧩 Generate backend config from template
+      shell: bash
+      run: |
+        cat > backend.tfbackend <<EOF
+        bucket         = "${{ vars.AWS_BUCKET_PREFIX }}-${{ inputs.terraform_environment }}"
+        key            = "${{ inputs.terraform_environment }}/terraform.tfstate"
+        region         = "us-east-1"
+        encrypt        = true
+        EOF
+
+    - name: 📁 Initialize Terraform
+      shell: bash
+      run: terraform init -backend-config=backend.tfbackend

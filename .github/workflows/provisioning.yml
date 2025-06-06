@@ -60,27 +60,10 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 💽 Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: 🪪 Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: ⚙️ Setup Terraform Environment
+        uses: ./.github/actions/setup-terraform
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: 🧩 Generate backend config from template
-        run: |
-          cat > backend.tfbackend <<EOF
-          bucket         = "my-tfstate-${{ github.event.inputs.environment }}"
-          key            = "${{ github.event.inputs.environment }}/terraform.tfstate"
-          region         = "us-east-1"
-          encrypt = true
-          EOF
-
-      - name: 📁 Initialize Terraform
-        run: terraform init -backend-config=backend.tfbackend
+          terraform_environment: ${{ github.event.inputs.environment }}
 
       - name: 📋 Terraform plan
         run: terraform plan -out=tfplan -input=false
@@ -104,27 +87,10 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 💽 Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: 🪪 Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: ⚙️ Setup Terraform Environment
+        uses: ./.github/actions/setup-terraform
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: 🧩 Generate backend config from template
-        run: |
-          cat > backend.tfbackend <<EOF
-          bucket         = "my-tfstate-${{ github.event.inputs.environment }}"
-          key            = "${{ github.event.inputs.environment }}/terraform.tfstate"
-          region         = "us-east-1"
-          encrypt = true
-          EOF
-
-      - name: 📁 Initialize Terraform
-        run: terraform init -backend-config=backend.tfbackend
+          terraform_environment: ${{ github.event.inputs.environment }}
 
       - name: 📦 Download tfplan artifact
         uses: actions/download-artifact@v4
