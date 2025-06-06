@@ -9,6 +9,7 @@ on:
         default: "apply"
         type: choice
         options:
+          - plan
           - apply
           - destroy
 
@@ -86,6 +87,7 @@ jobs:
     name: 🚀 Terraform Apply (Approval Required)
     needs: plan
     runs-on: ubuntu-latest
+    if: github.event.inputs.action != 'plan'
 
     environment:
       name: ${{ github.event.inputs.environment }}
