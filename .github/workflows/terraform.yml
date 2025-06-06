@@ -1,0 +1,77 @@
+name: 📦 Terraform
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "🛠️ Action to perform"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+          
+      environment:
+        description: "🌍 Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+jobs:
+  plan:
+    name: 🧪 Terraform Plan
+    runs-on: ubuntu-latest
+
+    outputs:
+      plan-artifact: tfplan-${{ github.event.inputs.environment }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 💽 Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: 📁 Initialize Terraform
+        run: terraform init
+
+      - name: 📋 Terraform plan
+        run: terraform plan -out=tfplan -input=false
+
+      - name: 📦 Upload tfplan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.event.inputs.environment }}
+          path: tfplan
+
+  apply:
+    name: 🚀 Terraform Apply (Approval Required)
+    needs: plan
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 💽 Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: 📁 Initialize Terraform
+        run: terraform init
+
+      - name: 📦 Download tfplan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ github.event.inputs.environment }}
+          path: .
+
+      - name: 🧨 Terraform apply
+        run: terraform apply -auto-approve tfplan
