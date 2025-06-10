@@ -23,7 +23,7 @@ runs:
         cat > backend.tfbackend <<EOF
         bucket         = "${{ vars.AWS_BUCKET_PREFIX }}-${{ inputs.terraform_environment }}"
         key            = "${{ inputs.terraform_environment }}/terraform.tfstate"
-        region         = "us-east-1"
+        region         = "${{ vars.AWS_REGION }}"
         encrypt        = true
         EOF
 

@@ -47,18 +47,18 @@ resource "random_password" "db_password" {
 }
 
 module "rds" {
-  source               = "terraform-aws-modules/rds/aws"
-  version              = "~> 5.0"
-  identifier           = "${local.db_name}-db"
-  engine               = data.aws_rds_orderable_db_instance.this.engine
+  source     = "terraform-aws-modules/rds/aws"
+  version    = "~> 5.0"
+  identifier = "${local.db_name}-db"
+  engine     = data.aws_rds_orderable_db_instance.this.engine
   # engine_version       = data.aws_rds_orderable_db_instance.this.engine_version
-  instance_class       = var.db_instance_class
-  allocated_storage    = var.db_allocated_storage
-  storage_type         = var.db_storage_type
-  username             = local.db_name
-  password             = random_password.db_password.result
+  instance_class    = var.db_instance_class
+  allocated_storage = var.db_allocated_storage
+  storage_type      = var.db_storage_type
+  username          = local.db_name
+  password          = random_password.db_password.result
   # family = data.aws_rds_engine_version.default.fami
-  family               = "postgres17"
+  family = "postgres17"
   # major_engine_version = data.aws_rds_orderable_db_instance.this.engine_latest_version
   db_subnet_group_name = module.vpc.database_subnet_group
 }
